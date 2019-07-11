@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Список пользователей</title>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+</head>
+
+<body>
+
+    <h2>Список пользователей</h2>
+
+    <div id="errors" class="alert alert-danger" style="display:none;"></div>
+
+    <form name="userForm">
+        <input type="hidden" name="id" value="0" />
+        <div class="form-group">
+            <label for="name">Имя:</label>
+            <input class="form-control" name="name" />
+        </div>
+
+        <div class="form-group">
+            <label for="author">Автор:</label>
+            <input class="form-control" name="author" />
+        </div>
+
+        <div class="form-group">
+            <label for="year">год:</label>
+            <input class="form-control" name="year" />
+        </div>
+
+        <div class="panel-body">
+            <button type="submit" class="btn btn-sm btn-primary">Сохранить</button>
+            <a id="reset" class="btn btn-sm btn-primary">Сбросить</a>
+        </div>
+
+    </form>
+
+    <table class="table table-condensed table-striped table-bordered">
+
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Имя</th>
+                <th>Автор</th>
+                <th>год</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        // Получение всех пользователей
+                
+        function Getbooks() {            
+            $.ajax({                
+                url: '/api/books',
+                                type: 'GET',
+                                contentType: "application/json",
+                                success: function(books) {
+                    console.log(books);                    
+                    var rows = "";                    
+                    $.each(books, function(index, user) {                         // добавляем полученные элементы в таблицу
+                                                
+                        rows += row(user);                    
+                    })                    
+                    $("table tbody").append(rows);                
+                }            
+            });        
+        }         // Получение одного пользователя
+                
+        function GetUser(id) {            
+            $.ajax({                
+                url: '/api/books/' + id,
+                                type: 'GET',
+                                contentType: "application/json",
+                                success: function(user) {                    
+                    var form = document.forms["userForm"];                    
+                    form.elements["id"].value = user.id;                    
+                    form.elements["name"].value = user.name;                    
+                    form.elements["author"].value = user.author; 
+                    form.elements["year"].value = user.year;                
+                }            
+            });        
+        }         // Добавление пользователя
+                
+        function CreateUser(userName, userAuthor, userYear) {
+            console.log(JSON.stringify({                    
+                name: userName,
+                author: userAuthor,
+                year: userYear                
+            }));            
+            $.ajax({                
+                url: "api/books",
+                                contentType: "application/json",
+                                method: "POST",
+                                data: JSON.stringify({                    
+                    name: userName,
+                                        author: userAuthor,
+                    year: userYear                
+                }),
+                                success: function(user) {                    
+                    reset();                    
+                    $("table tbody").append(row(user));                
+                },
+                    error: function(jxqr, error, status) {  
+                    ajaxError(jxqr, error, status);
+                }               
+            })        
+        }        
+
+        // Изменение пользователя               
+                           
+
+
+        function EditUser(userId, userName, userAuthor, userYear) {            
+            $.ajax({                
+                url: "api/books",
+                                contentType: "application/json",
+                                method: "PUT",
+                                data: JSON.stringify({                    
+                    id: userId,
+                    name: userName,
+                    author: userAuthor,
+                    year: userYear                
+                }),
+                                success: function(user) {                    
+                    reset();                    
+                    $("tr[data-rowid='" + user.id + "']").replaceWith(row(user));
+                },
+                    error: function(jxqr, error, status) {  
+
+                    ajaxError(jxqr, error, status);
+                }       
+            })        
+        }          // сброс формы
+                
+        function reset() {            
+            var form = document.forms["userForm"];            
+            form.reset();            
+            form.elements["id"].value = 0;        
+        }          // Удаление пользователя
+                
+        function DeleteUser(id) {            
+            $.ajax({                
+                url: "api/books/" + id,
+                                contentType: "application/json",
+                                method: "DELETE",
+                                success: function(user) {                    
+                    $("tr[data-rowid='" + user.id + "']").remove();                
+                }            
+            })        
+        }        
+        var row = function(user) {            
+                return "<tr data-rowid='" + user.id + "'><td>" + user.id + "</td>" +                    "<td>" + user.name + "</td> <td>" + user.author +
+                    "</td> <td>" + user.year + "</td>" +                    "<td><a class='editLink' data-id='" + user.id + "'>Изменить</a> | " +                     "<a class='removeLink' data-id='" + user.id + "'>Удалить</a></td></tr>";        
+            }         //$(function () {
+                         // сброс значений формы
+                        
+        $("#reset").click(function(e) {                 
+                e.preventDefault();                
+                reset();            
+            })              // отправка формы
+                         $("form").submit(function(e) {                
+                e.preventDefault();                
+                $('#errors').empty();                
+                $('#errors').hide();                
+                var id = this.elements["id"].value;                
+                var name = this.elements["name"].value;                
+                var author = this.elements["author"].value; 
+                var year = this.elements["year"].value;
+                if (id == 0)                    
+                    CreateUser(name, author, year);                
+                else                    
+                    EditUser(id, name, author, year);            
+            });              // нажимаем на ссылку Изменить
+                    
+        $("body").on("click", ".editLink", function() {                
+                var id = $(this).data("id");                
+                GetUser(id);            
+            })             // нажимаем на ссылку Удалить
+                         $("body").on("click", ".removeLink", function() {                
+                var id = $(this).data("id");                
+                DeleteUser(id);            
+            })      
+
+        //show errors
+        var ajaxError = function(jxqr, error, status) {                     // парсинг json-объекта
+                console.log(jxqr); 
+                console.log(error); 
+                console.log(status);                    
+                if (jxqr.responseText === "") {                        
+                    $('#errors').append("<h3>" + jxqr.statusText + "</h3>");                    
+                }                    
+                else {                        
+                    var response = JSON.parse(jxqr.responseText);                         // добавляем общие ошибки модели
+                                            
+                    if (response['']) {                             
+                        $.each(response[''], function(index, item) {                                
+                            $('#errors').append("<p>" + item + "</p>");                            
+                        });                        
+                    }                         // добавляем ошибки свойства Name
+                                            
+                    if (response['Name']) {                             
+                        $.each(response['Name'], function(index, item) {                                
+                            $('#errors').append("<p>" + item + "</p>");                            
+                        });                        
+                    }                         // добавляем ошибки свойства author                                                
+                    if (response['Author']) {                            
+                        $.each(response['Author'], function(index, item) {                                
+                            $('#errors').append("<p>" + item + "</p>");                            
+                        });                        
+                    }                    
+                }  
+                if (response['Year']) {                            
+                    $.each(response['Year'], function(index, item) {                                
+                        $('#errors').append("<p>" + item + "</p>");                            
+                    });
+                }                                                             
+                $('#errors').show();                
+            }            
+            // загрузка пользователей
+
+
+        Getbooks();
+    </script>
+</body>
+
+</html>
