@@ -9,8 +9,11 @@ namespace _1111webapi.Models
       : base(options)
         {
             Database.EnsureCreated();
+          //  Database.Migrate();
         }
         public DbSet<Book> Books { get; set; }
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<Transaction> Trnsactions { get; set; }
     }
 
 

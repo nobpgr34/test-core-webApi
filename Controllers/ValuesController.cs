@@ -11,32 +11,47 @@ namespace _1111webapi.Controllers
     public class ValuesController : ControllerBase
     {
         // GET api/values
-		public ValuesController(BookContext context)
+        public ValuesController(BookContext context)
         {
-             _db = context; 
+            _db = context;
+        }
+      [HttpGet]
+       [Route("api/[controller]/[action]")]
+        public IActionResult AddUser(Client client)
+        {
+           // string userInfo = $"Id: {user.Id}  Name: {user.Name}  Age: {user.Age}  HasRight: {user.HasRight}";
+            return Content("AddUser");
         }
 
-    internal BookContext _db;
+        internal BookContext _db;
 
-		string[] st= { "value1", "value2" };
-		
+        string[] st = { "value1", "value2" };
+
         [HttpGet]
-        public ActionResult<IEnumerable<Book>> Get()
+        public ActionResult<IEnumerable<Client>> Get()
         {
-            var books=_db.Books;
-            User user=new User();
-            Book b=new Book();
-            _db.Add(b);
-            _db.SaveChanges();
-            
-            return  books;
+            var books = _db.Clients;
+
+            // var cl = new Client() { Name = "cl", Amount = 100 };
+            // if (cl.Transactions == null)
+            // {
+            //     cl.Transactions = new List<Transaction>();
+            // }
+            // var tr1 = new Transaction() { Amount = 2, Date = DateTime.Now };
+            // var tr2 = new Transaction() { Amount = 6, Date = DateTime.Now };
+            // cl.Transactions.Add(tr1);
+            // cl.Transactions.Add(tr2);
+            // _db.Clients.Add(cl);
+            // _db.SaveChanges();
+
+            return books;
         }
 
         // GET api/values/5
         [HttpGet("{id}")]
         public ActionResult<string> Get(int id)
         {
-            return   st[id];
+            return st[id];
         }
 
         // POST api/values

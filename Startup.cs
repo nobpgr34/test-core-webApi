@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using _1111webapi.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace _1111webapi
 {
@@ -28,16 +29,13 @@ namespace _1111webapi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-        services.AddDbContext<BookContext>(options =>
-        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-
+            services.AddDbContext<BookContext>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {      
-
+        {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -48,9 +46,9 @@ namespace _1111webapi
             }
 
             //app.UseHttpsRedirection();
-             app.UseDefaultFiles();
+            app.UseDefaultFiles();
             app.UseStaticFiles();
-      app.UseMvc();
+            app.UseMvc();
         }
     }
 }

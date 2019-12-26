@@ -33,6 +33,10 @@
             <label for="year">год:</label>
             <input class="form-control" name="year" />
         </div>
+        <div class="form-group">
+            <label for="rowVersion">версия:</label>
+            <input class="form-control" name="rowVersion" />
+        </div>
 
         <div class="panel-body">
             <button type="submit" class="btn btn-sm btn-primary">Сохранить</button>
@@ -49,6 +53,7 @@
                 <th>Имя</th>
                 <th>Автор</th>
                 <th>год</th>
+                <th>версия</th>
                 <th></th>
             </tr>
         </thead>
@@ -87,7 +92,9 @@
                     form.elements["id"].value = user.id;                    
                     form.elements["name"].value = user.name;                    
                     form.elements["author"].value = user.author; 
-                    form.elements["year"].value = user.year;                
+                    form.elements["year"].value = user.year; 
+                    form.elements["rowVersion"].value = user.rowVersion ; 
+                    console.log(user.rowVersion );
                 }            
             });        
         }         // Добавление пользователя
@@ -121,7 +128,8 @@
                            
 
 
-        function EditUser(userId, userName, userAuthor, userYear) {            
+        function EditUser(userId, userName, userAuthor, userYear, userRowVersion) {            
+            console.log(userRowVersion);
             $.ajax({                
                 url: "api/books",
                                 contentType: "application/json",
@@ -130,7 +138,8 @@
                     id: userId,
                     name: userName,
                     author: userAuthor,
-                    year: userYear                
+                    year: userYear ,
+                    RowVersion: userRowVersion               
                 }),
                                 success: function(user) {                    
                     reset();                    
@@ -161,7 +170,7 @@
         }        
         var row = function(user) {            
                 return "<tr data-rowid='" + user.id + "'><td>" + user.id + "</td>" +                    "<td>" + user.name + "</td> <td>" + user.author +
-                    "</td> <td>" + user.year + "</td>" +                    "<td><a class='editLink' data-id='" + user.id + "'>Изменить</a> | " +                     "<a class='removeLink' data-id='" + user.id + "'>Удалить</a></td></tr>";        
+                    "</td> <td>" + user.year + "</td>" +  "</td> <td>" + user.rowVersion + "</td>" +                      "<td><a class='editLink' data-id='" + user.id + "'>Изменить</a> | " +                     "<a class='removeLink' data-id='" + user.id + "'>Удалить</a></td></tr>";        
             }         //$(function () {
                          // сброс значений формы
                         
@@ -172,15 +181,17 @@
                          $("form").submit(function(e) {                
                 e.preventDefault();                
                 $('#errors').empty();                
-                $('#errors').hide();                
+                $('#errors').hide();       
+                console.log(this.elements);         
                 var id = this.elements["id"].value;                
                 var name = this.elements["name"].value;                
                 var author = this.elements["author"].value; 
                 var year = this.elements["year"].value;
+                var rawversion = this.elements["rowVersion"].value;
                 if (id == 0)                    
                     CreateUser(name, author, year);                
                 else                    
-                    EditUser(id, name, author, year);            
+                    EditUser(id, name, author, year, rawversion);            
             });              // нажимаем на ссылку Изменить
                     
         $("body").on("click", ".editLink", function() {                
@@ -194,8 +205,10 @@
 
         //show errors
         var ajaxError = function(jxqr, error, status) {                     // парсинг json-объекта
-                console.log(jxqr); 
-                console.log(error); 
+                // console.log(jxqr); 
+                //  console.log(error); 
+                console.log(jxqr.responseText); 
+
                 console.log(status);                    
                 if (jxqr.responseText === "") {                        
                     $('#errors').append("<h3>" + jxqr.statusText + "</h3>");                    

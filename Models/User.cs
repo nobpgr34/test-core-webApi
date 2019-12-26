@@ -1,9 +1,11 @@
 
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+
 namespace _1111webapi.Models
 {
     public class User
     {
-        int age;
-        string name;
+        public string id { get; set; }
+        public string Name { get; set; }
     }
 }
